@@ -1,0 +1,6 @@
+FROM localhost:5000/trtconvbase
+RUN apt install make
+COPY heck_cuda.py ./check_cuda.py
+COPY build_engine.py ./build_engine.py 
+COPY Makefile ./Makefile 
+CMD ["make", "end2end"]

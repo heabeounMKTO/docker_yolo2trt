@@ -1,0 +1,39 @@
+# would not work if not devel !
+FROM nvidia/cuda:12.2.2-devel-ubuntu20.04
+WORKDIR /home
+
+# later in the install some stupid ass question pops up 
+ARG DEBIAN_FRONTEND=noninteractive
+
+# display libs  
+RUN apt-get update && apt-get install git libsm6 libxext6  -y
+RUN apt-get install build-essential -y
+RUN apt install python3-pip -y
+RUN pip install --upgrade setuptools pip --user 
+RUN pip install --ignore-installed PyYAML
+RUN pip install Pillow
+
+# nv*dia section
+# ------------------------
+RUN pip install nvidia-pyindex
+RUN pip install --upgrade nvidia-tensorrt
+
+# broguht to you by nvidia themselves
+# https://forums.developer.nvidia.com/t/pycuda-installation-issues-in-docker-container/165221
+ENV PATH="/usr/local/cuda/bin:${PATH}"
+ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
+RUN echo "$PATH" && echo "$LD_LIBRARY_PATH"
+RUN pip3 install pycuda --verbose
+# ------------------------
+
+# onnx-runtime
+RUN pip install protobuf
+RUN pip install onnxruntime-gpu
+RUN pip install onnx
+RUN pip install onnx-simplifier>=0.3.6
+
+# repos we will be using
+# .. and its requirements
+RUN git clone https://github.com/WongKinYiu/yolov7.git
+RUN pip install -r yolov7/requirements.txt
+RUN apt install -y libglib2.0-0 libsm6 libxrender1 libxext6 libglu1-mesa-dev 
